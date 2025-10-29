@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Библиотека - Тестирование API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            color: #000000;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        header h1 {
+            text-align: left;
+            font-size: 2.5rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            background: #ffffff;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+            gap:5px;
+            padding: 10px;
+        }
+
+        .nav-tab {
+            padding: 1rem 2rem;
+            background: #e9ebee;
+            color: rgb(0, 0, 0);
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .nav-tab:hover {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .nav-tab.active {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 2rem;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .success {
+            border-left-color: #27ae60;
+            background: #d5f4e6;
+        }
+
+        .error {
+            border-left-color: #e74c3c;
+            background: #fadbd8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .actions button {
+            flex: 1;
+        }
+
+        .book-grid, .author-grid, .genre-grid, .reader-grid, .loan-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            margin-bottom: 0.25rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Библиотечная система</h1>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="openTab('authors')">Авторы</button>
+            <button class="nav-tab" onclick="openTab('genres')">Жанры</button>
+            <button class="nav-tab" onclick="openTab('books')">Книги</button>
+            <button class="nav-tab" onclick="openTab('readers')">Читатели</button>
+            <button class="nav-tab" onclick="openTab('loans')">Выдачи</button>
+        </div>
+
+      
+        <div id="authors" class="tab-content active">
+    <h2>Управление авторами</h2>
+    
+    <div class="actions">
+        <button onclick="getAuthors()">Получить всех авторов</button>
+        <button onclick="showCreateAuthorForm()">Создать автора</button>
+        <button onclick="showDeleteAuthorForm()">Удалить автора</button>
+    </div>
+
+    <div id="createAuthorForm" style="display: none;">
+        <h3>Создать автора</h3>
+        <div class="form-group">
+            <label for="authorName">Имя:</label>
+            <input type="text" id="authorName" placeholder="Введите имя автора">
+        </div>
+        <div class="form-group">
+            <label for="authorBio">Биография:</label>
+            <textarea id="authorBio" placeholder="Введите биографию автора" rows="4"></textarea>
+        </div>
+        <button onclick="createAuthor()">Создать автора</button>
+    </div>
+
+    <div id="deleteAuthorForm" style="display: none;">
+        <h3>Удалить автора</h3>
+        <div class="form-group">
+            <label for="deleteAuthorId">ID автора:</label>
+            <input type="number" id="deleteAuthorId" placeholder="Введите ID автора">
+        </div>
+        <button onclick="deleteAuthor()">Удалить автора</button>
+    </div>
+
+    <div id="authorsResult" class="result"></div>
+</div>
+
+        
+        <div id="genres" class="tab-content">
+            <h2>Управление жанрами</h2>
+            
+            <div class="actions">
+                <button onclick="getGenres()">Получить все жанры</button>
+                <button onclick="showCreateGenreForm()">Создать жанр</button>
+            </div>
+
+            <div id="createGenreForm" style="display: none;">
+                <h3>Создать жанр</h3>
+                <div class="form-group">
+                    <label for="genreName">Название:</label>
+                    <input type="text" id="genreName" placeholder="Введите название жанра">
+                </div>
+                <div class="form-group">
+                    <label for="genreDescription">Описание:</label>
+                    <textarea id="genreDescription" placeholder="Введите описание жанра" rows="4"></textarea>
+                </div>
+                <button onclick="createGenre()">Создать жанр</button>
+            </div>
+
+            <div id="genresResult" class="result"></div>
+        </div>
+
+       
+        <div id="books" class="tab-content">
+            <h2>Управление книгами</h2>
+            
+            <div class="actions">
+                <button onclick="getBooks()">Получить все книги</button>
+                <button onclick="showCreateBookForm()">Создать книгу</button>
+            </div>
+
+            <div id="createBookForm" style="display: none;">
+                <h3>Создать книгу</h3>
+                <div class="form-group">
+                    <label for="bookTitle">Название:</label>
+                    <input type="text" id="bookTitle" placeholder="Введите название книги">
+                </div>
+                <div class="form-group">
+                    <label for="bookAuthorId">ID автора:</label>
+                    <input type="number" id="bookAuthorId" placeholder="Введите ID автора">
+                </div>
+                <div class="form-group">
+                    <label for="bookGenreId">ID жанра:</label>
+                    <input type="number" id="bookGenreId" placeholder="Введите ID жанра">
+                </div>
+                <div class="form-group">
+                    <label for="bookIsbn">ISBN:</label>
+                    <input type="text" id="bookIsbn" placeholder="Введите ISBN">
+                </div>
+                <div class="form-group">
+                    <label for="bookYear">Год публикации:</label>
+                    <input type="number" id="bookYear" placeholder="Введите год публикации">
+                </div>
+                <div class="form-group">
+                    <label for="bookCopies">Количество копий:</label>
+                    <input type="number" id="bookCopies" value="1">
+                </div>
+                <button onclick="createBook()">Создать книгу</button>
+            </div>
+
+            <div id="booksResult" class="result"></div>
+        </div>
+
+       
+        <div id="readers" class="tab-content">
+            <h2>Управление читателями</h2>
+            
+            <div class="actions">
+                <button onclick="getReaders()">Получить всех читателей</button>
+                <button onclick="showCreateReaderForm()">Создать читателя</button>
+            </div>
+
+            <div id="createReaderForm" style="display: none;">
+                <h3>Создать читателя</h3>
+                <div class="form-group">
+                    <label for="readerFirstName">Имя:</label>
+                    <input type="text" id="readerFirstName" placeholder="Введите имя">
+                </div>
+                <div class="form-group">
+                    <label for="readerLastName">Фамилия:</label>
+                    <input type="text" id="readerLastName" placeholder="Введите фамилию">
+                </div>
+                <div class="form-group">
+                    <label for="readerEmail">Email:</label>
+                    <input type="email" id="readerEmail" placeholder="Введите email">
+                </div>
+                <div class="form-group">
+                    <label for="readerPhone">Телефон:</label>
+                    <input type="text" id="readerPhone" placeholder="Введите телефон">
+                </div>
+                <button onclick="createReader()">Создать читателя</button>
+            </div>
+
+            <div id="readersResult" class="result"></div>
+        </div>
+
+       
+        <div id="loans" class="tab-content">
+            <h2>Управление выдачами книг</h2>
+            
+            <div class="actions">
+                <button onclick="getLoans()">Получить все выдачи</button>
+                <button onclick="showCreateLoanForm()">Создать выдачу</button>
+            </div>
+
+            <div id="createLoanForm" style="display: none;">
+                <h3>Создать выдачу книги</h3>
+                <div class="form-group">
+                    <label for="loanBookId">ID книги:</label>
+                    <input type="number" id="loanBookId" placeholder="Введите ID книги">
+                </div>
+                <div class="form-group">
+                    <label for="loanReaderId">ID читателя:</label>
+                    <input type="number" id="loanReaderId" placeholder="Введите ID читателя">
+                </div>
+                <div class="form-group">
+                    <label for="loanDate">Дата выдачи (ГГГГ-ММ-ДД):</label>
+                    <input type="text" id="loanDate" placeholder="2024-01-01">
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Дата возврата (ГГГГ-ММ-ДД):</label>
+                    <input type="text" id="dueDate" placeholder="2024-01-15">
+                </div>
+                <button onclick="createLoan()">Создать выдачу</button>
+            </div>
+
+            <div id="returnLoanForm" style="display: none;">
+                <h3>Вернуть книгу</h3>
+                <div class="form-group">
+                    <label for="returnLoanId">ID выдачи:</label>
+                    <input type="number" id="returnLoanId" placeholder="Введите ID выдачи">
+                </div>
+                <button onclick="returnBook()">Вернуть книгу</button>
+            </div>
+
+            <div class="actions">
+                <button onclick="showReturnLoanForm()">Вернуть книгу</button>
+            </div>
+
+            <div id="loansResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+
+   
+    function openTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    function showResult(elementId, data, isError = false) {
+        const resultDiv = document.getElementById(elementId);
+        resultDiv.textContent = JSON.stringify(data, null, 2);
+        resultDiv.className = 'result ' + (isError ? 'error' : 'success');
+    }
+
+    function clearForm(formId) {
+        document.getElementById(formId).querySelectorAll('input, textarea').forEach(input => {
+            input.value = '';
+        });
+    }
+
+    
+    function showCreateAuthorForm() {
+        document.getElementById('createAuthorForm').style.display = 'block';
+        clearForm('createAuthorForm');
+    }
+
+    function showCreateGenreForm() {
+        document.getElementById('createGenreForm').style.display = 'block';
+        clearForm('createGenreForm');
+    }
+
+    function showCreateBookForm() {
+        document.getElementById('createBookForm').style.display = 'block';
+        clearForm('createBookForm');
+    }
+
+    function showCreateReaderForm() {
+        document.getElementById('createReaderForm').style.display = 'block';
+        clearForm('createReaderForm');
+    }
+
+    function showCreateLoanForm() {
+        document.getElementById('createLoanForm').style.display = 'block';
+        clearForm('createLoanForm');
+    }
+
+    function showReturnLoanForm() {
+        document.getElementById('returnLoanForm').style.display = 'block';
+        clearForm('returnLoanForm');
+    }
+    function showDeleteAuthorForm() {
+    document.getElementById('deleteAuthorForm').style.display = 'block';
+    clearForm('deleteAuthorForm');
+}
+
+    
+    async function getAuthors() {
+        try {
+            const response = await fetch(`${API_BASE}/authors/`);
+            const data = await response.json();
+            showResult('authorsResult', data, data.error);
+        } catch (error) {
+            showResult('authorsResult', {error: error.message}, true);
+        }
+    }
+
+    async function createAuthor() {
+        const name = document.getElementById('authorName').value;
+        const bio = document.getElementById('authorBio').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/authors/?name=${encodeURIComponent(name)}&bio=${encodeURIComponent(bio)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            showResult('authorsResult', data, data.error);
+            if (!data.error) {
+                document.getElementById('createAuthorForm').style.display = 'none';
+            }
+        } catch (error) {
+            showResult('authorsResult', {error: error.message}, true);
+        }
+    }
+
+    
+    async function getGenres() {
+        try {
+            const response = await fetch(`${API_BASE}/genres/`);
+            const data = await response.json();
+            showResult('genresResult', data, data.error);
+        } catch (error) {
+            showResult('genresResult', {error: error.message}, true);
+        }
+    }
+
+    async function createGenre() {
+        const name = document.getElementById('genreName').value;
+        const description = document.getElementById('genreDescription').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/genres/?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+            showResult('genresResult', data, data.error);
+            if (!data.error) {
+                document.getElementById('createGenreForm').style.display = 'none';
+            }
+        } catch (error) {
+            showResult('genresResult', {error: error.message}, true);
+        }
+    }
+
+    
+    async function getBooks() {
+        try {
+            const response = await fetch(`${API_BASE}/books/`);
+            const data = await response.json();
+            showResult('booksResult', data, data.error);
+        } catch (error) {
+            showResult('booksResult', {error: error.message}, true);
+        }
+    }
+
+    async function createBook() {
+        const title = document.getElementById('bookTitle').value;
+        const author_id = document.getElementById('bookAuthorId').value;
+        const genre_id = document.getElementById('bookGenreId').value;
+        const isbn = document.getElementById('bookIsbn').value;
+        const publication_year = document.getElementById('bookYear').value;
+        const available_copies = document.getElementById('bookCopies').value;
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/books/?title=${encodeURIComponent(title)}&author_id=${author_id}&genre_id=${genre_id}&isbn=${encodeURIComponent(isbn)}&publication_year=${publication_year}&available_copies=${available_copies}`,
+                {
+                    method: 'POST'
+                }
+            );
+            const data = await response.json();
+            showResult('booksResult', data, data.error);
+            if (!data.error) {
+                document.getElementById('createBookForm').style.display = 'none';
+            }
+        } catch (error) {
+            showResult('booksResult', {error: error.message}, true);
+        }
+    }
+
+   
+    async function getReaders() {
+        try {
+            const response = await fetch(`${API_BASE}/readers/`);
+            const data = await response.json();
+            showResult('readersResult', data, data.error);
+        } catch (error) {
+            showResult('readersResult', {error: error.message}, true);
+        }
+    }
+
+    async function createReader() {
+        const first_name = document.getElementById('readerFirstName').value;
+        const last_name = document.getElementById('readerLastName').value;
+        const email = document.getElementById('readerEmail').value;
+        const phone = document.getElementById('readerPhone').value;
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/readers/?first_name=${encodeURIComponent(first_name)}&last_name=${encodeURIComponent(last_name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`,
+                {
+                    method: 'POST'
+                }
+            );
+            const data = await response.json();
+            showResult('readersResult', data, data.error);
+            if (!data.error) {
+                document.getElementById('createReaderForm').style.display = 'none';
+            }
+        } catch (error) {
+            showResult('readersResult', {error: error.message}, true);
+        }
+    }
+
+    
+    async function getLoans() {
+        try {
+            const response = await fetch(`${API_BASE}/book-loans/`);
+            const data = await response.json();
+            showResult('loansResult', data, data.error);
+        } catch (error) {
+            showResult('loansResult', {error: error.message}, true);
+        }
+    }
+
+    async function createLoan() {
+        const book_id = document.getElementById('loanBookId').value;
+        const reader_id = document.getElementById('loanReaderId').value;
+        const loan_date = document.getElementById('loanDate').value;
+        const due_date = document.getElementById('dueDate').value;
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/book-loans/?book_id=${book_id}&reader_id=${reader_id}&loan_date=${loan_date}&due_date=${due_date}`,
+                {
+                    method: 'POST'
+                }
+            );
+            const data = await response.json();
+            showResult('loansResult', data, data.error);
+            if (!data.error) {
+                document.getElementById('createLoanForm').style.display = 'none';
+            }
+        } catch (error) {
+            showResult('loansResult', {error: error.message}, true);
+        }
+    }
+
+    async function returnBook() {
+        const loan_id = document.getElementById('returnLoanId').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/book-loans/${loan_id}/return`, {
+                method: 'PUT'
+            });
+            const data = await response.json();
+            showResult('loansResult', data, data.error);
+            if (!data.error) {
+                document.getElementById('returnLoanForm').style.display = 'none';
+            }
+        } catch (error) {
+            showResult('loansResult', {error: error.message}, true);
+        }
+    }
+    async function deleteAuthor() {
+    const author_id = document.getElementById('deleteAuthorId').value;
+
+    try {
+        const response = await fetch(`${API_BASE}/authors/${author_id}`, {
+            method: 'DELETE'
+        });
+        const data = await response.json();
+        showResult('authorsResult', data, data.error);
+        if (!data.error) {
+            document.getElementById('deleteAuthorForm').style.display = 'none';
+        }
+    } catch (error) {
+        showResult('authorsResult', {error: error.message}, true);
+    }
+}
+    </script>
+</body>
+</html>
